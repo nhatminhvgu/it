@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pomodoro Focus</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>
+  </head>
+  <body>
+    <div class="app-container">
+      <header>
+        <h1>Pomodoro Focus</h1>
+        <div class="header-buttons">
+          <button onclick="showLogin()">login</button>
+          <button onclick="showNotes()">note</button>
+        </div>
+      </header>
+
+      <main>
+        <section class="panel progress-panel">
+          <h2>Process</h2>
+          <div class="progress-box">today: <span>0.0 hours</span></div>
+          <div class="progress-box">this week: <span>0.0 hours</span></div>
+          <div class="progress-box">this month: <span>0.0 hours</span></div>
+          <div class="progress-box">this year: <span>0.0 hours</span></div>
+        </section>
+
+        <section class="timer-panel">
+          <div class="timer-display" id="timer">25:00</div>
+          <p id="status">Ready to start</p>
+          <div class="camera-container">
+            <canvas id="webcam-canvas"></canvas>
+            <span class="badge camera-status">Camera is off</span>
+            <span class="badge detection-status">Undetected</span>
+            <span class="model-status">Starting...</span>
+          </div>
+
+          <div class="button-group">
+            <button id="actionBtn" onclick="handleMainAction()">Start</button>
+            <button onclick="resetTimer()">Restart</button>
+          </div>
+        </section>
+        <section class="panel settings-panel">
+          <h2>Statistics</h2>
+        </section>
+      </main>
+    </div>
+    <div class="modal" id="loginModal">
+      <div class="modal-content">
+        <h2>
+          <svg
+            width="24"
+            height="24"
+            class="inline-block mr-2"
+            fill="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"
+            />
+          </svg>
+          <span id="authTitle">Login</span>
+        </h2>
+        <form id="authForm" onsubmit="handleAuth(event, true)">
+          <div class="input-group">
+            <svg
+              width="20"
+              height="20"
+              class="input-icon"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"
+              />
+              <path
+                d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"
+              />
+            </svg>
+            <input
+              type="email"
+              name="email"
+              placeholder="Your email"
+              required
+            />
+          </div>
+          <div class="input-group">
+            <svg
+              width="20"
+              height="20"
+              class="input-icon"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 116 0z"
+                clip-rule="evenodd"
+              />
+            </svg>
+            <input
+              type="password"
+              name="password"
+              placeholder="password"
+              required
+              minlength="6"
+            />
+          </div>
+          <div class="auth-switch">
+            <span id="authSwitch">
+              have not an account?
+              <a href="#" onclick="toggleAuthMode(event)">Register now</a>
+            </span>
+          </div>
+          <div class="modal-actions">
+            <button type="button" onclick="closeLogin()">
+              <svg
+                width="20"
+                height="20"
+                class="inline-block mr-1"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+              Cancel
+            </button>
+            <button type="submit" id="authSubmit">
+              <svg
+                width="20"
+                height="20"
+                class="inline-block mr-1"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M3 3a1 1 0 011 1v12a1 1 0 11-2 0V4a1 1 0 011-1zm7.707 3.293a1 1 0 010 1.414L9.414 9H17a1 1 0 110 2H9.414l1.293 1.293a1 1 0 01-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+              <span>Login</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class="modal" id="notesModal">
+      <div class="modal-content">
+        <h2>
+          <svg
+            width="24"
+            height="24"
+            class="inline-block mr-2"
+            fill="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zM16 18H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"
+            />
+          </svg>
+          Note
+        </h2>
+        <textarea
+          id="noteContent"
+          placeholder="Type yourr notes here..."
+          rows="8"
+        ></textarea>
+        <div class="modal-actions">
+          <button onclick="closeNotes()">
+            <svg
+              width="20"
+              height="20"
+              class="inline-block mr-1"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                clip-rule="evenodd"
+              />
+            </svg>
+            Hủy
+          </button>
+          <button onclick="saveNoteAs()">
+            <svg
+              width="20"
+              height="20"
+              class="inline-block mr-1"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V9a2 2 0 00-2-2h-3V4a1 1 0 00-2 0v3H8V4a1 1 0 00-2 0v3H3a1 1 0 01-1-1V5a1 1 0 011-1h16a1 1 0 011 1v10a1 1 0 01-1 1h-16a1 1 0 01-1-1V5a1 1 0 011-1h1V3a1 1 0 012 0v1h6V3a1 1 0 012 0v1h3z"
+              />
+            </svg>
+            Save file
+          </button>
+        </div>
+      </div>
+    </div>
+    <!-- Toast Container -->
+    <div id="toastContainer"></div>
+    <script src="detection.js"></script>
+    <script src="camera.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>
