@@ -7,16 +7,12 @@ let isRunning = false;
 let isPaused = false;
 let timerPaused = false;
 
-// Timer display element
 const timerDisplay = document.getElementById("timer");
 
-//audio element
 const timerEndSound = new Audio("sound/(1).mp3");
 
-//API endpoints
 const API_URL = "http://localhost:3000/api";
 
-//Authentication functions
 async function login(email, password) {
   try {
     const response = await fetch(`${API_URL}/auth/login`, {
@@ -37,7 +33,6 @@ async function login(email, password) {
     authToken = data.token;
     isAuthenticated = true;
 
-    // Update UI
     updateAuthUI();
     closeLogin();
     showToast("Successfully registered!", "success");
@@ -66,7 +61,6 @@ async function register(email, password) {
     authToken = data.token;
     isAuthenticated = true;
 
-    // Update UI
     updateAuthUI();
     closeLogin();
     showToast("Successfully registered!", "success");
@@ -94,7 +88,6 @@ function updateAuthUI() {
   }
 }
 
-// Timer Control Functions
 function startTimer() {
   if (isRunning) return;
 
@@ -169,7 +162,7 @@ function resetTimer() {
   window.timerPaused = timerPaused;
   window.isRunning = isRunning;
 
-  timeLeft = 1500; // 25 minutes
+  timeLeft = 1500;
   updateTimerDisplay();
 
   const actionBtn = document.getElementById("actionBtn");
@@ -228,7 +221,7 @@ async function saveSession() {
         Authorization: `Bearer ${authToken}`,
       },
       body: JSON.stringify({
-        duration: 1, // 1 second
+        duration: 1,
         timestamp: new Date().toISOString(),
       }),
     });

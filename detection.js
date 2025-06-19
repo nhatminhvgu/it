@@ -55,7 +55,7 @@ async function predict() {
     window.pauseTimer();
     window.timerEndSound.play();
   }
-  // check and undate the status
+  // check and update the status
   const detectionStatus = document.querySelector(".detection-status");
   if (detectionStatus) {
     if (!isPersonPresent) {
