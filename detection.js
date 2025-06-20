@@ -1,11 +1,9 @@
-// URL của model từ Teachable Machine Export Panel
-const URL = "https://teachablemachine.withgoogle.com/models/XNBWt3vTF/";
+const URL = "https://teachablemachine.withgoogle.com/models/JV39Ch7Gu/";
 
 let model, webcam, labelContainer, maxPredictions;
 let isModelReady = false;
 let modelStatus = document.querySelector(".model-status");
 
-// Load and setup
 async function init() {
   try {
     if (modelStatus) modelStatus.textContent = "downloading model...";
@@ -55,7 +53,6 @@ async function predict() {
     window.pauseTimer();
     window.timerEndSound.play();
   }
-  // check and update the status
   const detectionStatus = document.querySelector(".detection-status");
   if (detectionStatus) {
     if (!isPersonPresent) {
@@ -81,7 +78,6 @@ function startDetection() {
     cameraStatus.classList.remove("inactive");
   }
 
-  // start detect
   const detectionStatus = document.querySelector(".detection-status");
   if (detectionStatus) {
     detectionStatus.textContent = "working on process...";

@@ -56,7 +56,7 @@ let canvas;
 let ctx;
 let modelStatus;
 let predictionInterval;
-const MODEL_URL = "https://teachablemachine.withgoogle.com/models/XNBWt3vTF/";
+const MODEL_URL = "https://teachablemachine.withgoogle.com/models/JV39Ch7Gu/";
 
 async function initModel() {
   const modelURL = MODEL_URL + "model.json";
